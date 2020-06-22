@@ -8,7 +8,7 @@ LABEL description="Dockerfile ThreatHunter Playbook Project."
 
 ARG NB_USER
 ARG NB_UID
-ENV NB_USER jovyan
+ENV NB_USER br14n
 ENV NB_UID 1000
 ENV HOME /home/${NB_USER}
 ENV PATH "$HOME/.local/bin:$PATH"
@@ -21,9 +21,13 @@ RUN adduser --disabled-password \
     ${NB_USER}
 
 USER ${NB_USER}
+ # ********* Install OpenHunt Library *****************
 
-RUN python3 -m pip install openhunt==1.7.4 attackcti==0.3.0 bokeh==2.0.2  --user
-
+RUN python3 -m pip install openhunt==1.7.4 attackcti==0.3.0 bokeh==2.0.2  --user \
+# ********* Download and decompress mordor datasets *****************
+    && git clone https://github.com/hunters-forge/mordor.git ${HOME}/mordor \
+    && cd ${HOME}/mordor/small_datasets/ \
+    && find . -type f -name "*.tar.gz" -print0 | xargs -0 -I{} tar xf {} -C .
 COPY docs ${HOME}/docs
 
 USER root
